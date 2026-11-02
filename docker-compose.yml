@@ -144,13 +144,23 @@ services:
     image: ghcr.io/cross-seed/cross-seed
     container_name: cross-seed
     user: ${PUID}:${PGID}
+    environment:
+      TZ: ${TZ}
+      PROWLARR_API_KEY: ${prowlarr_api}
+      SONARR_URL: ${sonarr_url}
+      SONARR_API_KEY: ${sonarr_api}
+      SONARR4K_URL: ${sonarr4k_url}
+      SONARR4K_API_KEY: ${sonarr4k_api}
+      RADARR_URL: ${radarr_url}
+      RADARR_API_KEY: ${radarr_api}
+      RADARR4K_URL: ${radarr4k_url}
+      RADARR4K_API_KEY: ${radarr4k_api}
     command: daemon
     ports:
       - "2468:2468"
     volumes:
       - ${CONFIG}/config/cross-seed:/config
-      - ${CONFIG}/config/qbittorrent/qBittorrent/BT_backup:/torrents:ro
-      - ${NFS}/data/torrents/cross-seeds:/cross-seeds
+      - ${NFS}/data:/data  # same path as qBittorrent, needed for linkDirs hardlinks
     depends_on:
       prowlarr:
         condition: service_started
@@ -201,6 +211,7 @@ services:
     container_name: prowlarr
     environment:
       <<: *env
+      PROWLARR__AUTH__APIKEY: ${prowlarr_api}
     volumes:
       - ${CONFIG}/config/prowlarr:/config
 
@@ -238,7 +249,7 @@ services:
 
   bazarr:
     <<: *base
-    image: linuxserver/bazarr
+    image: linuxserver/bazarr:latest
     container_name: bazarr
     environment:
       <<: *env
@@ -251,7 +262,7 @@ services:
 
   bazarr4k:
     <<: *base
-    image: linuxserver/bazarr
+    image: linuxserver/bazarr:latest
     container_name: bazarr4k
     environment:
       <<: *env
