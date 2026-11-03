@@ -215,6 +215,15 @@ services:
       PROWLARR__AUTH__APIKEY: ${prowlarr_api}
     volumes:
       - ${CONFIG}/config/prowlarr:/config
+    healthcheck:
+      # App up AND traffic gets out through the VPN (see qbittorrent)
+      test: curl -fsS http://localhost:9696/ping >/dev/null && curl -sS --max-time 4 -o /dev/null https://1.1.1.1 || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    labels:
+      autoheal-app: true
 
   sonarr:
     <<: *arr
@@ -355,6 +364,15 @@ services:
       DISPLAY_TIMEZONE: ${TZ}
     volumes:
       - ${CONFIG}/config/speedtest:/config
+    healthcheck:
+      # App up AND traffic gets out through the VPN (see qbittorrent)
+      test: curl -fsS http://localhost:80/api/healthcheck >/dev/null && curl -sS --max-time 4 -o /dev/null https://1.1.1.1 || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    labels:
+      autoheal-app: true
 
   autoheal:
     <<: *base
