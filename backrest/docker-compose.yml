@@ -1,0 +1,42 @@
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+
+    ports:
+      - "9898:9898"
+
+    environment:
+      - TZ=${TZ}
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+
+    volumes:
+      # Backrest internal storage
+      - ${CONFIG}/backrest/data:/data
+      - ${CONFIG}/backrest/config:/config
+      - ${CONFIG}/backrest/cache:/cache
+      - ${CONFIG}/backrest/tmp:/tmp
+      - ${CONFIG}/backrest/rclone:/root/.config/rclone
+      - /root/.ssh:/root/.ssh:ro
+
+      # stack-backup
+      - ${CONFIG}/config:/stack-config:ro
+      - /home/andrew/truenas_data/compose/docker-compose.yml:/stack/docker-compose.yml:ro
+      - /home/andrew/truenas_data/compose/.env:/stack/.env:ro
+      # tududi-backup
+      - /mnt/tududi:/tududi
+      # homepage-backup
+      - /mnt/homepage:/homepage
+      - /mnt/paperless-ngx:/paperless-ngx
+      # host-backup: VM-disk-only bits not covered elsewhere
+      - ${CONFIG}/backrest/config:/host/backrest-config:ro
+      - /home/andrew/nginx:/host/nginx:ro
+      - /home/andrew/docker-socket-proxy:/host/docker-socket-proxy:ro
+      - /home/andrew/scripts:/host/scripts:ro
+      - /home/andrew/homelab-dotfiles:/host/homelab-dotfiles:ro
+      - /etc:/host/etc:ro

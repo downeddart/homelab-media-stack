@@ -6,6 +6,7 @@
 # Local backups
 *.bak
 *.bak[0-9]
+*.bak-*
 
 # NFS silly-rename files
 .nfs*
