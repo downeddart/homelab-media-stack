@@ -330,6 +330,26 @@ services:
       plex-server:
         condition: service_started
 
+  # Kometa: Plex collections, Home rows and poster badges. Runs once a day at KOMETA_TIME.
+  # Never touches media files. Config: ${CONFIG}/config/kometa/config.yml; KOMETA_<NAME> env vars
+  # become <<NAME>> secrets there (PLEXTOKEN, TMDB_KEY, TAUTULLI_KEY, MDBLIST_KEY).
+  kometa:
+    <<: *base
+    image: kometateam/kometa:v2.5.4
+    container_name: kometa
+    user: ${PUID}:${PGID}
+    environment:
+      TZ: ${TZ}
+      KOMETA_CONFIG: /config/config.yml
+      KOMETA_TIME: "06:00"  # after Plex maintenance (02:00-05:00) and Recyclarr (00:00)
+      KOMETA_PLEXTOKEN: ${plex_token}    # -> <<PLEXTOKEN>> in config.yml
+      KOMETA_TMDB_KEY: ${tmdb_api_key}
+      KOMETA_TAUTULLI_KEY: ${tautulli_api}
+      KOMETA_MDBLIST_KEY: ${mdblist_api_key}
+    volumes:
+      - ${CONFIG}/config/kometa:/config
+    # no depends_on plex-server: `docker compose up kometa` must never recreate/restart Plex
+
   seerr:
     <<: *base
     image: ghcr.io/seerr-team/seerr:latest
