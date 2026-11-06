@@ -305,6 +305,10 @@ services:
         reservations:
           devices:
             - capabilities: [gpu]
+    # Cap Plex so a runaway job (e.g. nightly loudness analysis on Tenet hit 6.7 GB, Nov 2026)
+    # gets OOM-killed inside the container instead of stalling the whole 10 GB VM.
+    mem_limit: 6g
+    memswap_limit: 6g   # no extra swap on top - fail fast rather than thrash
     network_mode: host
     environment:
       TZ: ${TZ}
@@ -342,7 +346,7 @@ services:
       TZ: ${TZ}
       KOMETA_CONFIG: /config/config.yml
       KOMETA_TIME: "06:00"  # after Plex maintenance (02:00-05:00) and Recyclarr (00:00)
-      KOMETA_PLEXTOKEN: ${plex_token}    # -> <<PLEXTOKEN>> in config.yml
+      KOMETA_PLEXTOKEN: ${kometa_plex_token}  # Kometa's OWN plex.tv device token (never the server's PlexOnlineToken)
       KOMETA_TMDB_KEY: ${tmdb_api_key}
       KOMETA_TAUTULLI_KEY: ${tautulli_api}
       KOMETA_MDBLIST_KEY: ${mdblist_api_key}
